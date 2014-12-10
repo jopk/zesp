@@ -1,13 +1,13 @@
 <meta charset="UTF-8">
 <html>
     <head>
-        <script src="aes.js"></script>
-        <script src="aes-ctr.js"></script>
-        <script src="sha256.js"></script>
-        <script src="file-saver.js"></script>
+        <script src="lib/crypto/aes.js"></script>
+        <script src="lib/crypto/aes-ctr.js"></script>
+        <script src="lib/crypto/sha256.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
-        <script src="jquery.qrcode.js"></script>
-        <script src="qrcode.js"></script>
+        <script src="lib/qrcode/jquery.qrcode.js"></script>
+        <script src="lib/qrcode/qrcode.js"></script>
+        <script src="file-saver.js"></script>
     </head>
     <body>
         <style>
@@ -50,6 +50,8 @@
                 document.body.appendChild(sendEncFile);
                 sendEncFile.submit();
                 document.body.removeChild(sendEncFile);
+//                saveAs(encryptedFile, "test.enc");
+                printQRC();
             }
         </script>
 
@@ -112,8 +114,7 @@
             }
 
             var file, 
-                fff,
-                decryptedFile;            
+                encryptedFile;            
 
             function handleFileSelect(evt) {
                 file = evt.target.files[0],
@@ -135,7 +136,8 @@
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
                     var contentStr = prepareFile(reader.result);
                     var password = Sha256.hash(contentStr);
-                    encryptedFile = encryptFile(password);
+                    localStorage.password = password;
+                    encryptedFile = encryptFile(contentStr, password);
                 }
                 reader.readAsArrayBuffer(evt.target.files[0]);
             }
