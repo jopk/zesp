@@ -7,7 +7,13 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
         <script src="lib/qrcode/jquery.qrcode.js"></script>
         <script src="lib/qrcode/qrcode.js"></script>
-        <script src="file-saver.js"></script>
+        <script src="lib/file-saver.js"></script>
+        <script src="encrypt.js"></script>
+        <script>
+            function printQRC() {
+                jQuery('#qrcode').qrcode({text: localStorage.ckey + uploadedFile.name});
+            }
+        </script>
     </head>
     <body>
         <style>
@@ -38,6 +44,7 @@
 
         <script>
             function postwith(to, name, file) {
+              /*
                 var sendEncFile = document.createElement('form');
                 sendEncFile.method = "post";
                 sendEncFile.action = to;
@@ -50,39 +57,19 @@
                 document.body.appendChild(sendEncFile);
                 sendEncFile.submit();
                 document.body.removeChild(sendEncFile);
-//                saveAs(encryptedFile, "test.enc");
-                printQRC();
+                saveAs(file, "test.enc");
+                */
             }
         </script>
 
         <div id="qrcode"></div>
 
-        <a href="javascript:postwith('cgi/input.cgi', file.name, encryptedFile)">cos</a>
+        <a href="javascript:postwith('cgi/input.cgi', uploadedFile.name, encryptedFile)">cos</a>
 
         <script>
-            function printQRC() {
-                jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/tmp/test.test"});
-            }
-
             var reader;
             var progress = document.querySelector('.percent');
-
-            function prepareFile(file) {
-                var contentBytes = new Uint8Array(file);
-                var contentStr = '';
-                for (var i=0; i<contentBytes.length; i++) {
-                    contentStr += String.fromCharCode(contentBytes[i]);
-                }
-                return contentStr;
-            }
-
-            function encryptFile(contentStr, password) {
-
-                var ciphertext = Aes.Ctr.encrypt(contentStr, password, 256);
-
-                var blob = new Blob([ciphertext], { type: 'text/plain' });
-                return blob;
-            }
+            var uploadedFile;
 
             function abortRead() {
                 reader.abort();
@@ -113,11 +100,10 @@
                 }
             }
 
-            var file, 
-                encryptedFile;            
 
             function handleFileSelect(evt) {
-                file = evt.target.files[0],
+                uploadedFile = evt.target.files[0],
+                localStorage.mimetype = uploadedFile.type;
                 progress.style.width = '0%';
                 progress.textContent = '0%';
 
@@ -134,10 +120,12 @@
                     progress.style.width = '100%';
                     progress.textContent = '100%';
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
-                    var contentStr = prepareFile(reader.result);
-                    var password = Sha256.hash(contentStr);
-                    localStorage.password = password;
-                    encryptedFile = encryptFile(contentStr, password);
+                    var plaintext = preparePlaintext(reader.result);
+                    localStorage.ckey = Sha256.hash(plaintext); // do testow tylko!!!
+                    ciphertext = encryptFile(plaintext, localStorage.ckey);
+                    encryptedFile = prepareFile(ciphertext, uploadedFile.type);
+                    saveAs(encryptedFile, uploadedFile.name);
+                    printQRC();
                 }
                 reader.readAsArrayBuffer(evt.target.files[0]);
             }
