@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+	<title>qr uploader</title>
+</head>
+<body>
+
+<SCRIPT language="JavaScript" type="text/javascript">
+	document.write("<p>Javascript is enabled. You can safely disable it.</p>");
+	var hit = ( Math.ceil( Math.random() * -100000 ).toString() ).bold();
+	document.write( "You are person #" + hit + " to visit my homepage!" );
+</SCRIPT>
+
+<h1>Wyślij nam swoje pliki!</h1>
+
+<form action="cgi/input.cgi" enctype="multipart/form-data" method="post">
+	<p>
+		Dodaj jakiś śmieszny opis, on i tak nic nie zmienia! <br />
+		<input type="text" name="file_name" size="30">
+	</p>
+	<p>
+		Tutaj wrzuć swoje pliki: <br />
+		<input type="file" name="file" size="40">
+	</p>
+
+	<div>
+		<input type="submit" value="Submit Form">
+	</div>
+</form>
+
+<h1><a href="upload.html">Wersja szyfrowana</a></h1>
+</body>
+</html>
