@@ -69,7 +69,7 @@ var sendEncFile = document.createElement('form');
                 form.append("file_name", name);
                 request.open(
                         "POST",
-                        "/cgi/input.cgi",
+                        to,
                         true
                 );
                 request.send(form);
@@ -81,31 +81,9 @@ var sendEncFile = document.createElement('form');
         <a href="javascript:postwith('cgi/input.cgi', uploadedFile.name, encryptedFile)">cos</a>
 
         <script>
-            function printQRC() {
-                jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/tmp/test.test"});
-            }
-
             var reader;
             var progress = document.querySelector('.percent');
             var uploadedFile;
-// +++ upload.html.2 83,99
-// nie wiem czy ten kod jest ci jeszcze potrzebny
-            function prepareFile(file) {
-                var contentBytes = new Uint8Array(file);
-                var contentStr = '';
-                for (var i=0; i<contentBytes.length; i++) {
-                    contentStr += String.fromCharCode(contentBytes[i]);
-                }
-                return contentStr;
-            }
-
-            function encryptFile(contentStr, password) {
-
-                var ciphertext = Aes.Ctr.encrypt(contentStr, password, 256);
-
-                var blobfile = new Blob([contentStr], { type: 'text/plain' });
-                return blobfile;
-            }
 
             function abortRead() {
                 reader.abort();
