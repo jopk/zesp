@@ -86,8 +86,10 @@
                     progress.style.width = '100%';
                     progress.textContent = '100%';
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
-                    var plaintext = decryptFile(reader.result, localStorage.ckey);
-                    decryptedFile = prepareFile(plaintext, localStorage.mimetype);
+                    plaintext = decryptFile(localStorage.ckey);
+                    ciphertext = null;
+                    decryptedFile = prepareFile(localStorage.mimetype);
+                    plaintext = null;
                     saveAs(decryptedFile, uploadedFile.name);
             }
                 reader.readAsText(evt.target.files[0]);
