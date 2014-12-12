@@ -43,15 +43,69 @@
         <button onclick="abortRead();">Cancel read</button>
         <div id="progress_bar"><div class="percent">0%</div></div>
 
+        <script>
+            function postwith(to, name, file) {
+/*
+var sendEncFile = document.createElement('form');
+                sendEncFile.method = "post";
+                sendEncFile.action = to;
+
+                    var inNa = document.createElement('input');
+                    inNa.setAttribute("file_name", name);
+                    var inFi = document.createElement('input');
+                    inFi.setAttribute("file", encryptedFile);
+
+                document.body.appendChild(sendEncFile);
+                sendEncFile.submit();
+                document.body.removeChild(sendEncFile);
+//                saveAs(encryptedFile, "test.enc");
+//                printQRC();
+*/
+                form = new FormData(),
+                request = new XMLHttpRequest();
+                //request.setRequestHeader("Content-type","multipart/form-data");
+
+                form.append("file",file, name);
+                form.append("file_name", name);
+                request.open(
+                        "POST",
+                        "/cgi/input.cgi",
+                        true
+                );
+                request.send(form);
+            }
+        </script>
 
         <div id="qrcode"></div>
 
         <a href="javascript:postwith('cgi/input.cgi', uploadedFile.name, encryptedFile)">cos</a>
 
         <script>
+            function printQRC() {
+                jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/tmp/test.test"});
+            }
+
             var reader;
             var progress = document.querySelector('.percent');
             var uploadedFile;
+// +++ upload.html.2 83,99
+// nie wiem czy ten kod jest ci jeszcze potrzebny
+            function prepareFile(file) {
+                var contentBytes = new Uint8Array(file);
+                var contentStr = '';
+                for (var i=0; i<contentBytes.length; i++) {
+                    contentStr += String.fromCharCode(contentBytes[i]);
+                }
+                return contentStr;
+            }
+
+            function encryptFile(contentStr, password) {
+
+                var ciphertext = Aes.Ctr.encrypt(contentStr, password, 256);
+
+                var blobfile = new Blob([contentStr], { type: 'text/plain' });
+                return blobfile;
+            }
 
             function abortRead() {
                 reader.abort();
