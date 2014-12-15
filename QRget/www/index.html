@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+    
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+  </head>
+  <body ng-app="starter">
+
+    <ion-pane>
+      <ion-header-bar class="bar-stable">
+        <h1 class="title">QR Get</h1>
+      </ion-header-bar>
+      <ion-content>
+		</br></br></br>
+	    <div class="card">
+			<center><h2><div id="url" class="item item-text-wrap" >
+			</div></h2>
+		</div></br>
+		<center><button class="button button-block button-balanced" onclick="DownloadFile('A','B','C')">
+			DOWNLOAD
+		</button>
+      </ion-content>
+    </ion-pane>
+	<script type="text/javascript" charset="utf-8">
+		//document.getElementById("url").innerHTML="http://freeisoft.pl/wp-content/uploads/3d-tapety-na-kompa-44-1024x640.jpg";
+		/*alert("1");
+		window.plugins.webintent.getUri((function(urll) {
+			alert("2");
+			if(urll !== "") {
+				alert("3");
+				document.getElementById("url").innerHTML=urll;
+				alert(urll);
+				// url is the url the intent was launched with
+			}
+		});*/
+		//alert(getIntent());
+		document.getElementById("url").innerHTML="http://www.cisowa.pl/tapety/20.jpg";
+		function DownloadFile(URL, Folder_Name, File_Name) {
+			alert("5");
+		//	alert(getIntent().getData());
+		//	var uri = getIntent() != null ? getIntent().getData() : null;
+		//	alert(uri);
+			
+			URL=document.getElementById("url").innerHTML;
+			//if(URL==""){
+				//URL="http://www.cisowa.pl/tapety/20.jpg";
+				//document.getElementById("url").innerHTML=URL;
+			//}
+			//alert(URL);
+			Folder_Name="QR_get";
+			//File_Name=URL.substr(URL.lastIndexOf('/') + 1) 
+			//File_Name=File_Name.substr(File_Name.lastIndexOf('.') + 1);
+			//File_Name=File_Name.substr(File_Name.lastIndexOf('.')-1);
+			File_Name="ZSADA";
+			alert(File_Name);
+			if (URL == null && Folder_Name == null && File_Name == null) {
+				return;
+			}
+			download(URL, Folder_Name, File_Name); //If available download function call
+		}
+		function download(URL, Folder_Name, File_Name) {
+		//step to request a file system 
+			alert("1");
+			
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, onFileSystemFail);
+			
+			function onFileSystemSuccess(fileSystem) {
+				alert("2");
+				var download_link = encodeURI(URL);
+				ext = download_link.substr(download_link.lastIndexOf('.') + 1); //Get extension of URL
+				alert("3");
+				var directoryEntry = fileSystem.root; // to get root path of directory
+				directoryEntry.getDirectory(Folder_Name, { create: true, exclusive: false }, onDirectorySuccess, onDirectoryFail); // creating folder in sdcard
+				var rootdir = fileSystem.root;
+				alert("4");
+				var fp = rootdir.toURL(); // Returns Fulpath of local directory
+
+				fp = fp + "/" + Folder_Name + "/" + File_Name + "." + ext; // fullpath and name of the file which we want to give
+				alert(fp);// download function call
+				filetransfer(download_link, fp);
+			}
+
+			function onDirectorySuccess(parent) {
+				alert("ds");
+				// Directory created successfuly
+			}
+
+			function onDirectoryFail(error) {
+				//Error while creating directory
+				alert("Unable to create new directory: " + error.code);
+			}
+
+			  function onFileSystemFail(evt) {
+				//Unable to access file system
+				alert("err");
+				alert(evt.target.error.code);
+			}
+		}
+		function filetransfer(download_link, fp) {
+			alert("5");
+			var fileTransfer = new FileTransfer();
+			alert("6");
+			// File download function with URL and local path
+			fileTransfer.download(download_link, fp,
+				function (entry) {
+					alert("download complete: " + entry.fullPath);
+				},
+				function (error) {
+					 //Download abort errors or download failed errors
+					 alert("download error source " + error.source);
+					 //alert("download error target " + error.target);
+					 //alert("upload error code" + error.code);
+				}
+			);
+		}
+	</script>
+  </body>
+</html>
