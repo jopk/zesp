@@ -48,7 +48,7 @@
                 form = new FormData(),
                 request = new XMLHttpRequest();
 
-                form.append("file",file, sname);
+                form.append("file",file, name);
                 form.append("file_name", name);
                 request.open(
                         "POST",
@@ -127,7 +127,7 @@
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
                     plaintext = preparePlaintext(); //reader.result
                     enckey = Sha256.hash(plaintext);
-                    ciphertext = encryptFile(key); //plaintext
+                    ciphertext = encryptFile(enckey); //plaintext
                     plaintext = null;
                     encryptedFile = prepareFile(uploadedFile.type); //ciphertext
                     ciphertext = null;
