@@ -12,7 +12,7 @@
         <script src="lib/sendForm.js"></script>
         <script>
             function printQRC() {
-/*testy*/               jQuery('#qrcode').qrcode({text: uploadedFile.type + " " +  localStorage.ckey + uploadedFile.name});
+/*testy*/               jQuery('#qrcode').qrcode({text: localStorage.ckey + " " + uploadedFile.name});
             }
         </script>
     </head>
