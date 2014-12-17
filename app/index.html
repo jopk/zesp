@@ -42,7 +42,7 @@
       </ion-content>
     </ion-pane>
 	<script type="text/javascript" charset="utf-8">
-		var decryptedFile, ciphertext, plaintext, key='',File_Name;
+		var fileObject, key='',File_Name,ext,fp;
 		
 		function analyzeStringFromQR(str) {
 			var w = new Array(2);
@@ -109,7 +109,7 @@
 				var directoryEntry = fileSystem.root; // to get root path of directory
 				directoryEntry.getDirectory(Folder_Name, { create: true, exclusive: false }, onDirectorySuccess, onDirectoryFail); // creating folder in sdcard
 				var rootdir = fileSystem.root;
-				var fp = rootdir.toURL(); // Returns Fulpath of local directory
+				fp = rootdir.toURL(); // Returns Fulpath of local directory
 				fp = fp + "/" + Folder_Name + "/" + File_Name + "." + ext; // fullpath and name of the file which we want to give
 				filetransfer(download_link, fp);
 			}
@@ -135,72 +135,73 @@
 			fileTransfer.download(download_link, fp,
 				function (entry) {
 					alert("download complete: " + entry.fullPath+"\n now decrypting...");
-					
-					function onInitFs(fs) {
-						alert("w oninitfs");
-						fs.root.getFile('data.json', {}, function(fileEntry) {
-							alert("w sf.root.getFile()");
-							fileEntry.file(function(file) {
-								alert("trworze filereader");
-								var reader = new FileReader();
-								alert("read.onload");
-								reader.onloadend = function(e) {
-								var json = this.result;
-								var obj = JSON.parse(json);
-								alert("ciphertext = obj");
-								ciphertext = reader.result;
-								plaintext = decryptFile(ciphertext, key); //key to pierwsze 64 znaki z qrcodu
-								alert("ciphertext = null");
-								ciphertext = null;
-								decryptedFile = prepareFile(plaintext); //też w qr
-								plaintext = null;				
-								alert("saveas");
-								saveAs(decryptedFile,File_Name);
-								alert("file saved!");	
-								};
-
-								reader.readAsText(file);
-							}, errorHandler);
-						}, errorHandler);
-					}
-					function errorHandler(e) {
-						alert('Error');
-					}
-
-					return {
-						all: function() {
-							alert("wind.reqfs");
-							return window.requestFileSystem(window.PERSISTENT, 1024*1024, onInitFs, errorHandler);
-						}
-					}
-					/*
-					f.file(function(e) {
-						var reader = new FileReader();
-						
-						reader.onloadend = function(e){};
-						
-						alert("reader.readastext");
-						reader.readAsText(FILE_IN_FS);
-					
-						//alert("wchodze do while");
-						//0 - brak pliku, 1 - wczytuje, 2 - gotowe
-						//while (reader.readyState != 2) {
-						//	if (reader.readyState == 0) {
-						//		return null; //ERROR 
-						//	}
-						//}
-						
-					}
-					*/				
+					alert("przed reqfs");
+					window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onInitFs, errorHandler);
 				},
 				function (error) {
 					 //Download abort errors or download failed errors
 					 alert("download error source " + error.source);
 					 //alert("download error target " + error.target);
 					 //alert("upload error code" + error.code);
-				}
-			);
+				});
 		}
-	</script>
+		function onInitFs(fs) {
+			alert("w oninitfs");
+			File_Name=File_Name.concat(".").concat(ext);
+			fs.root.getFile(File_Name, {create: true, exclusive: false}, fileEntry,errorHandler);
+		}
+		function fileEntry(fileEntry){
+			alert("w fileentry");
+			fileObject=fileEntry;
+			saveFileContent();
+		}
+		function saveFileContent() {
+			alert("w sv file contetn");
+			//========================= TU SYPIE======================================
+			fileObject.createWriter(gotFileWriter, fail);
+		}
+		function gotFileWriter(writer){
+			alert("w gotfilewriter");
+			fileObject.file(function(e){
+				alert("tworze filereader");
+				var reader = new FileReader();
+				/* prepare read listeners */
+				reader.onloadstart = function(evt) {
+				};
+				reader.onabort = function(evt) {
+				};
+				reader.onerror = function(evt) {
+				};
+/* Błażej:
+   tu powinna być funkcja .onload, bo:
+   .onload wywoływane jest gry pobieranie zostanie zakónczone,
+   .onloadend wyw., gdy pobieranie skończone LUB błąd pobierania (i koniec), LUB pobieranie przerwane (i koniec)
+   czyli teoretycznie jak będzie coś źle to i tak będzie chciał coś zrobić dziwnego.
+   Dlatego .onload do obsługi skończonego pobierania, a .onloadend które wykonuje się później
+   raczej jako jako takie finally używać. 
+*/
+				reader.onloadend = function(evt) {
+					alert("skonczyl czytac");
+					var json = this.result;
+					var obj = JSON.parse(json);
+					alert("ciphertext = obj");
+					var ciphertext = reader.result;
+					plaintext = decryptFile(ciphertext, key); //key to pierwsze 64 znaki z qrcodu
+					alert("ciphertext = null");
+					ciphertext = null;
+					var decryptedFile = prepareFile(plaintext); //też w qr
+					var plaintext = null;				
+					alert("saveas");
+					saveAs(decryptedFile,fp);
+					alert("file saved!");	
+				};
+				reader.readAsText(e);
+			});	
+		}
+		function errorHandler(e) {
+			alert(e);
+		}
+	
+		</script>
   </body>
 </html>
