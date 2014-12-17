@@ -12,7 +12,7 @@
         <script src="lib/sendForm.js"></script>
         <script>
             function printQRC() {
-/*testy*/               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no/zesp/tmp/" + encodeURI(uploadedFile.name) + key});
+               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no/zesp/tmp/" + encodeURI(uploadedFile.name) + enckey});
             }
         </script>
     </head>
@@ -126,7 +126,7 @@
                     progress.textContent = '100%';
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
                     plaintext = preparePlaintext(); //reader.result
-                    key = Sha256.hash(plaintext);
+                    enckey = Sha256.hash(plaintext);
                     ciphertext = encryptFile(key); //plaintext
                     plaintext = null;
                     encryptedFile = prepareFile(uploadedFile.type); //ciphertext
