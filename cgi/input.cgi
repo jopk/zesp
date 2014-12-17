@@ -50,7 +50,7 @@ close UPLOADFILE;
 
 print $query->header ( );
 
-system("./qrencode", "-s", "5", "-o", "$qrdir/$filename", "http://mcz.0x.no:9080/$upload_dir/$filename");
+system("./qrencode", "-s", "5", "-o", "$qrdir/$filename", "http://mcz.0x.no:9080/zesp/$upload_dir/$filename");
 # system("echo", "test");
 print <<END_HTML;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
