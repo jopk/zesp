@@ -12,7 +12,7 @@
         <script src="lib/sendForm.js"></script>
         <script>
             function printQRC() {
-               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no/zesp/tmp/" + encodeURI(uploadedFile.name) + enckey});
+               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/zesp/tmp/" + encodeURI(uploadedFile.name) + enckey});
             }
         </script>
     </head>
@@ -56,12 +56,13 @@
                         true
                 );
                 request.send(form);
+                printQRC();
             }
         </script>
 
         <div id="qrcode"></div>
 
-        <a href="javascript:postwith('cgi/input.cgi', encodeURI(uploadedFile.name), encryptedFile)">cos</a>
+        <a href="javascript:postwith('cgi/input.cgi', encodeURI(uploadedFile.name), encryptedFile)">WYŚLIJ</a>
 
         <script>
             var reader;
@@ -100,7 +101,6 @@
 
             function handleFileSelect(evt) {
                 uploadedFile = evt.target.files[0],
-/*testy*/                localStorage.mimetype = uploadedFile.type;
                 progress.style.width = '0%';
                 progress.textContent = '0%';
 
@@ -115,9 +115,9 @@
                         reader.abort();
                         alert('Plik przekracza 10MB');
                     }
-                    if (uploadedFile.type.length + uploadedFile.name.length > 135) {
+                    if (uploadedFile.name.length > 64) {
                         reader.abort();
-                        alert('Nazwa pliku przekracza');
+                        alert('Nazwa pliku przekracza 64 znaki.');
                     }
                     document.getElementById('progress_bar').className = 'loading';
                 };
@@ -131,8 +131,6 @@
                     plaintext = null;
                     encryptedFile = prepareFile(uploadedFile.type); //ciphertext
                     ciphertext = null;
-/*testy*/                    saveAs(encryptedFile, uploadedFile.name);
-/*testy*/                    printQRC();
                 }
                 reader.readAsArrayBuffer(evt.target.files[0]);
             }
