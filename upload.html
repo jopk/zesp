@@ -12,7 +12,7 @@
         <script src="lib/sendForm.js"></script>
         <script>
             function printQRC() {
-                jQuery('#qrcode').qrcode({text: localStorage.ckey + uploadedFile.name});
+/*testy*/               jQuery('#qrcode').qrcode({text: uploadedFile.type + " " +  localStorage.ckey + uploadedFile.name});
             }
         </script>
     </head>
@@ -49,7 +49,7 @@
                 request = new XMLHttpRequest();
                 //request.setRequestHeader("Content-type","multipart/form-data");
 
-                form.append("file",file, name);
+                form.append("file",file, sname);
                 form.append("file_name", name);
                 request.open(
                         "POST",
@@ -82,7 +82,7 @@
                     alert('File is not readable');
                     break;
                 case evt.target.error.ABORT_ERR:
-                    break; // noop
+                    break;
                 default:
                     alert('An error occurred reading this file.');
                 };
@@ -109,9 +109,17 @@
                 reader.onerror = errorHandler;
                 reader.onprogress = updateProgress;
                 reader.onabort = function(e) {
-                    alert('File read cancelled');
+                    alert('Anulowano');
                 };
                 reader.onloadstart = function(e) {
+                    if (uploadedFile.size > 10000000) {
+                        reader.abort();
+                        alert('Plik przekracza 10MB');
+                    }
+                    if (uploadedFile.type.length + uploadedFile.name.length > 135) {
+                        reader.abort();
+                        alert('Nazwa pliku przekracza');
+                    }
                     document.getElementById('progress_bar').className = 'loading';
                 };
                 reader.onload = function(e) {
