@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+    
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+	<script src="js/aes.js"></script>
+	<script src="js/aes-ctr.js"></script>
+	<script src="js/sha256.js"></script>
+  </head>
+  <body onload="onLoad()" ng-app="starter">
+
+    <ion-pane>
+      <ion-header-bar class="bar bar-header bar-dark">
+        <h1 class="title"><b><u>QR Get</u></b></h1>
+      </ion-header-bar>
+      <ion-content>
+		</br></br></br>
+	    <div class="card">
+			<center><h2><div id="url" class="item item-text-wrap" >
+			</div></h2>
+		</div></br>
+		<center><button class="button button-block button-balanced" onclick="DownloadFile()"><i class="icon ion-share"></i>
+			DOWNLOAD
+		</button>
+      </ion-content>
+    </ion-pane>
+	<script type="text/javascript" charset="utf-8">
+		var fp, decryptedFile, ciphertext, plaintext, key='',File_Name,ext;
+		
+		function analyzeStringFromQR(str) {
+			var w = new Array(2);
+			var tmp = "";
+			var n = str.length - 1;
+			for (var i = str.length-64; i < str.length; i++) {
+				tmp += str[i];
+			}
+			w[0] = tmp;
+			tmp = "";
+			var p = i;
+			for (i = 0; i < str.length-64; i++) {
+				tmp += str[i];
+			}
+			w[1] = tmp;
+			return w;
+		}
+		function decryptFile(ciphertext, key) {
+			return Aes.Ctr.decrypt(ciphertext, key, 256);
+		}
+		function prepareFile(plaintext) {
+			var bytes = new Uint8Array(plaintext.length);
+			for (var i = 0; i < plaintext.length; i++)
+				bytes[i] = plaintext.charCodeAt(i);
+			var decrypted = new Blob([bytes]);
+			return decrypted;
+		}
+
+		function onLoad(){
+			window.plugins.webintent.getUri(function(url) {
+				alert(url);
+				if(url !== ""){
+					var tab = new Array(2);
+					tab=analyzeStringFromQR(url);
+					key=tab[0];
+					document.getElementById("url").innerHTML=tab[1];
+				}
+				else
+					document.getElementById("url").innerHTML="ERROR: Intent not received";
+			});
+		}
+		function DownloadFile() {
+			var URL=document.getElementById("url").innerHTML;
+			var Folder_Name="QRget";
+			File_Name=URL.substr(URL.lastIndexOf('/') + 1) 
+			for(i=1;i<=File_Name.length;i++){
+				if(File_Name[i]=='.'){
+					File_Name=File_Name.substr(0,i);
+					break;
+				}
+			}
+			if (URL == null && Folder_Name == null && File_Name == null) {
+				return;
+			}
+			download(URL, Folder_Name); //If available download function call
+		}
+		function download(URL, Folder_Name) {
+		//step to request a file system 
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, onFileSystemFail);
+			
+			function onFileSystemSuccess(fileSystem) {
+				var download_link = encodeURI(URL);
+				ext = download_link.substr(download_link.lastIndexOf('.') + 1); //Get extension of URL
+				var directoryEntry = fileSystem.root; // to get root path of directory
+				directoryEntry.getDirectory(Folder_Name, { create: true, exclusive: false }, onDirectorySuccess, onDirectoryFail); // creating folder in sdcard
+				var rootdir = fileSystem.root;
+				fp = rootdir.toURL(); // Returns Fulpath of local directory
+				fp = fp + "/" + Folder_Name + "/" + File_Name + "." + ext; // fullpath and name of the file which we want to give
+				filetransfer(download_link, fp);
+			}
+
+			function onDirectorySuccess(parent) {
+				// Directory created successfuly
+			}
+
+			function onDirectoryFail(error) {
+				//Error while creating directory
+				alert("Unable to create new directory: " + error.code);
+			}
+
+			function onFileSystemFail(evt) {
+				//Unable to access file system
+				alert("err");
+				alert(evt.target.error.code);
+			}
+		}
+		function filetransfer(download_link, fp) {
+			var fileTransfer = new FileTransfer();
+			// File download function with URL and local path
+			fileTransfer.download(download_link, fp,
+				function (entry) {
+					
+					alert("download complete: " + entry.fullPath+"\n now decrypting...");
+					alert("przed returnem");
+					window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*1024, onInitFs, errorHandler);
+					function onInitFs(fs) {
+						alert("w oninitfs");
+						File_Name=File_Name.concat(".");
+						File_Name=File_Name.concat(ext);
+						var dir=fp.concat("/").concat(File_Name);
+						fs.root.getFile(dir, {create: true, exclusive: false}, function(fileEntry) {
+							fileEntry.file(function(file) {
+								alert("trworze filereader");
+								var reader = new FileReader();
+								alert("read.onload");
+								reader.onloadend = function(e) {
+									var json = this.result;
+									var obj = JSON.parse(json);
+									alert("ciphertext = obj");
+									ciphertext = reader.result;
+									plaintext = decryptFile(ciphertext, key); //key to pierwsze 64 znaki z qrcodu
+									alert("ciphertext = null");
+									ciphertext = null;
+									decryptedFile = prepareFile(plaintext); //też w qr
+									plaintext = null;				
+									alert("saveas");
+									saveAs(decryptedFile,File_Name);
+									alert("file saved!");	
+								};
+
+								reader.readAsText(file);
+							}, errorHandler);
+						}, errorHandler);
+					}
+					function errorHandler(e) {
+						alert('Error');
+					}
+					
+					/*
+					f.file(function(e) {
+						var reader = new FileReader();
+						
+						reader.onloadend = function(e){};
+						
+						alert("reader.readastext");
+						reader.readAsText(FILE_IN_FS);
+					
+						//alert("wchodze do while");
+						//0 - brak pliku, 1 - wczytuje, 2 - gotowe
+						//while (reader.readyState != 2) {
+						//	if (reader.readyState == 0) {
+						//		return null; //ERROR 
+						//	}
+						//}
+						
+					}
+					*/				
+				},
+				function (error) {
+					 //Download abort errors or download failed errors
+					 alert("download error source " + error.source);
+					 //alert("download error target " + error.target);
+					 //alert("upload error code" + error.code);
+				}
+			);
+		}
+	
+	</script>
+  </body>
+</html>
