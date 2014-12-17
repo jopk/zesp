@@ -10,9 +10,7 @@
         <script src="lib/file-saver.js"></script>
         <script src="lib/web-encrypt.js"></script>
         <script src="lib/form.js"></script>
-        <script src="lib/upload.js"></script>
         <script>
-            document.getElementById('files').addEventListener('change', handleFileSelect, false);
             function printQRC() {
                jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/zesp/tmp/" + encodeURI(uploadedFile.name) + enckey});
             }
@@ -48,6 +46,6 @@
         <div id="qrcode"></div>
 
         <a href="javascript:postwith('cgi/input.cgi', encodeURI(uploadedFile.name), encryptedFile)"><button>Wyślij</button></a>
-
+        <script src="lib/upload.js"></script>
     </body>
 </html>
