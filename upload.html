@@ -12,6 +12,7 @@
         <script src="lib/form.js"></script>
         <script src="lib/upload.js"></script>
         <script>
+            document.getElementById('files').addEventListener('change', handleFileSelect, false);
             function printQRC() {
                jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/zesp/tmp/" + encodeURI(uploadedFile.name) + enckey});
             }
