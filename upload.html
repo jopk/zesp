@@ -12,7 +12,7 @@
         <script src="lib/sendForm.js"></script>
         <script>
             function printQRC() {
-/*testy*/               jQuery('#qrcode').qrcode({text: localStorage.ckey + " " + uploadedFile.name});
+/*testy*/               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no/zesp/tmp/" + encodeURI(uploadedFile.name) + key});
             }
         </script>
     </head>
@@ -47,7 +47,6 @@
             function postwith(to, name, file) {
                 form = new FormData(),
                 request = new XMLHttpRequest();
-                //request.setRequestHeader("Content-type","multipart/form-data");
 
                 form.append("file",file, sname);
                 form.append("file_name", name);
@@ -127,8 +126,8 @@
                     progress.textContent = '100%';
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
                     plaintext = preparePlaintext(); //reader.result
-/*testy*/                    localStorage.ckey = Sha256.hash(plaintext);
-                    ciphertext = encryptFile(localStorage.ckey); //plaintext
+                    key = Sha256.hash(plaintext);
+                    ciphertext = encryptFile(key); //plaintext
                     plaintext = null;
                     encryptedFile = prepareFile(uploadedFile.type); //ciphertext
                     ciphertext = null;
