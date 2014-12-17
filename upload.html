@@ -45,22 +45,6 @@
 
         <script>
             function postwith(to, name, file) {
-/*
-var sendEncFile = document.createElement('form');
-                sendEncFile.method = "post";
-                sendEncFile.action = to;
-
-                    var inNa = document.createElement('input');
-                    inNa.setAttribute("file_name", name);
-                    var inFi = document.createElement('input');
-                    inFi.setAttribute("file", encryptedFile);
-
-                document.body.appendChild(sendEncFile);
-                sendEncFile.submit();
-                document.body.removeChild(sendEncFile);
-//                saveAs(encryptedFile, "test.enc");
-//                printQRC();
-*/
                 form = new FormData(),
                 request = new XMLHttpRequest();
                 //request.setRequestHeader("Content-type","multipart/form-data");
@@ -78,7 +62,7 @@ var sendEncFile = document.createElement('form');
 
         <div id="qrcode"></div>
 
-        <a href="javascript:postwith('cgi/input.cgi', uploadedFile.name, encryptedFile)">cos</a>
+        <a href="javascript:postwith('cgi/input.cgi', encodeURI(uploadedFile.name), encryptedFile)">cos</a>
 
         <script>
             var reader;
