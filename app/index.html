@@ -20,11 +20,9 @@
     
     <!-- your app's js -->
     <script src="js/app.js"></script>
-	<script src="../lib/crypto/aes.js"></script>
-	<script src="../lib/crypto/aes-ctr.js"></script>
-    <script src="../lib/app/analizeQRString.js"></script>
-    <script src="../lib/app/decrypt.js"></script>
-    <script src="../lib/app/file-saver.js"></script>
+	<script src="js/aes.js"></script>
+	<script src="js/aes-ctr.js"></script>
+	<script src="js/sha256.js"></script>
   </head>
   <body onload="onLoad()" ng-app="starter">
 
@@ -44,15 +42,44 @@
       </ion-content>
     </ion-pane>
 	<script type="text/javascript" charset="utf-8">
-		var fileObject, key='',File_Name,ext,fp;
+		var fileObject, key='455ddef1e2a6b2a583e318c244f09c510a4efd8334f3b99297e866be8f7fe499',File_Name,ext,fp;
 		
+		function analyzeStringFromQR(str) {
+			var w = new Array(2);
+			var tmp = "";
+			var n = str.length - 1;
+			for (var i = str.length-64; i < str.length; i++) {
+				tmp += str[i];
+			}
+			w[0] = tmp;
+			tmp = "";
+			var p = i;
+			for (i = 0; i < str.length-64; i++) {
+				tmp += str[i];
+			}
+			w[1] = tmp;
+			return w;
+		}
+		function decryptFile(ciphertext, key) {
+			return Aes.Ctr.decrypt(ciphertext, key, 256);
+		}
+		function prepareFile(plaintext) {
+			var bytes = new Uint8Array(plaintext.length);
+			for (var i = 0; i < plaintext.length; i++){
+				bytes[i] = plaintext.charCodeAt(i);
+				alert(bytes[i]);
+			}
+			var decrypted = new Blob([bytes]);
+			return decrypted;
+		}
+
 		function onLoad(){
 			window.plugins.webintent.getUri(function(url) {
-				alert(url);
+				//alert(url);
 				if(url !== ""){
 					var tab = new Array(2);
 					tab=analyzeStringFromQR(url);
-					key=tab[0];
+					//key=tab[0];
 					document.getElementById("url").innerHTML=tab[1];
 				}
 				else
@@ -61,7 +88,7 @@
 		}
 		function DownloadFile() {
 			var URL=document.getElementById("url").innerHTML;
-			var Folder_Name="QRget";
+			var Folder_Name="";
 			File_Name=URL.substr(URL.lastIndexOf('/') + 1) 
 			for(i=1;i<=File_Name.length;i++){
 				if(File_Name[i]=='.'){
@@ -86,7 +113,8 @@
 				var rootdir = fileSystem.root;
 				fp = rootdir.toURL(); // Returns Fulpath of local directory
 				fp = fp + "/" + Folder_Name + "/" + File_Name + "." + ext; // fullpath and name of the file which we want to give
-				filetransfer(download_link, fp);
+				//alert(fp);
+				filetransfer(download_link);
 			}
 
 			function onDirectorySuccess(parent) {
@@ -104,72 +132,53 @@
 				alert(evt.target.error.code);
 			}
 		}
-		function filetransfer(download_link, fp) {
+		function filetransfer(download_link) {
 			var fileTransfer = new FileTransfer();
 			// File download function with URL and local path
 			fileTransfer.download(download_link, fp,
 				function (entry) {
 					alert("download complete: " + entry.fullPath+"\n now decrypting...");
-					alert("przed reqfs");
 					window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onInitFs, errorHandler);
 				},
 				function (error) {
 					 //Download abort errors or download failed errors
 					 alert("download error source " + error.source);
+					 window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onInitFs, errorHandler);
 					 //alert("download error target " + error.target);
 					 //alert("upload error code" + error.code);
 				});
 		}
 		function onInitFs(fs) {
-			alert("w oninitfs");
 			File_Name=File_Name.concat(".").concat(ext);
 			fs.root.getFile(File_Name, {create: true, exclusive: false}, fileEntry,errorHandler);
 		}
 		function fileEntry(fileEntry){
-			alert("w fileentry");
+			alert(fileEntry.name);
 			fileObject=fileEntry;
+			alert(fileEntry);
 			saveFileContent();
 		}
 		function saveFileContent() {
-			alert("w sv file contetn");
-			//========================= TU SYPIE======================================
-			fileObject.createWriter(gotFileWriter, fail);
+			fileObject.createWriter(gotFileWriter, errorHandler);
 		}
 		function gotFileWriter(writer){
-			alert("w gotfilewriter");
-			fileObject.file(function(e){
-				alert("tworze filereader");
+		fileObject.file(function(e){
+				alert("tworze fr");
 				var reader = new FileReader();
 				/* prepare read listeners */
-				reader.onloadstart = function(evt) {
-				};
-				reader.onabort = function(evt) {
-				};
-				reader.onerror = function(evt) {
-				};
-/* Błażej:
-   tu powinna być funkcja .onload, bo:
-   .onload wywoływane jest gry pobieranie zostanie zakónczone,
-   .onloadend wyw., gdy pobieranie skończone LUB błąd pobierania (i koniec), LUB pobieranie przerwane (i koniec)
-   czyli teoretycznie jak będzie coś źle to i tak będzie chciał coś zrobić dziwnego.
-   Dlatego .onload do obsługi skończonego pobierania, a .onloadend które wykonuje się później
-   raczej jako jako takie finally używać. 
-*/
-				reader.onloadend = function(evt) {
+				reader.onload = (function(evt) {
 					alert("skonczyl czytac");
-					var json = this.result;
-					var obj = JSON.parse(json);
-					alert("ciphertext = obj");
 					var ciphertext = reader.result;
-					plaintext = decryptFile(ciphertext, key); //key to pierwsze 64 znaki z qrcodu
-					alert("ciphertext = null");
+					alert(ciphertext);
+					var plaintext = decryptFile(ciphertext, key); 
+					alert(plaintext);
 					ciphertext = null;
-					var decryptedFile = prepareFile(plaintext); //też w qr
-					var plaintext = null;				
-					alert("saveas");
-					saveAs(decryptedFile,fp);
+					//var decryptedFile = prepareFile(plaintext); 
+					writer.write(plaintext);
+					plaintext = null;
+					//saveAs(decryptedFile,fp);
 					alert("file saved!");	
-				};
+				})(e);
 				reader.readAsText(e);
 			});	
 		}
