@@ -4,14 +4,16 @@
         <script src="lib/crypto/aes.js"></script>
         <script src="lib/crypto/aes-ctr.js"></script>
         <script src="lib/crypto/sha256.js"></script>
+        <script src="lib/crypto/secure-random.js"></script>
         <script src="lib/jquery/jquery.min.js"></script>
         <script src="lib/qrcode/jquery.qrcode.js"></script>
         <script src="lib/qrcode/qrcode.js"></script>
-        <script src="lib/web/encrypt.js"></script>
-        <script src="lib/web/form.js"></script>
+        <script src="lib/file-saver.js"></script>
+        <script src="lib/web-encrypt.js"></script>
+        <script src="lib/form.js"></script>
         <script>
             function printQRC() {
-               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/zesp/tmp/" + encodeURI(uploadedFile.name) + enckey});
+               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/zesp/tmp/" + hashc + enckey + encodeURI(uploadedFile.name)});
             }
         </script>
     </head>
@@ -44,7 +46,7 @@
 
         <div id="qrcode"></div>
 
+        <script src="lib/upload.js"></script>
         <a href="javascript:postwith('cgi/input.cgi', encodeURI(uploadedFile.name), encryptedFile)"><button>Wyślij</button></a>
-        <script src="lib/web/upload.js"></script>
     </body>
 </html>
