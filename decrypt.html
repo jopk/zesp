@@ -5,7 +5,7 @@
         <script src="lib/crypto/aes-ctr.js"></script>
         <script src="lib/crypto/sha256.js"></script>
         <script src="lib/file-saver.js"></script>
-        <script src="lib/decrypt.js"></script>
+        <script src="lib/app-decrypt.js"></script>
     </head>
     <body>
         <style>
@@ -86,10 +86,11 @@
                     progress.style.width = '100%';
                     progress.textContent = '100%';
                     setTimeout("document.getElementById('progress_bar').className='';", 2000);
+                    ciphertext = reader.result;
                     plaintext = decryptFile(localStorage.ckey);
-                    ciphertext = null;
+//                    ciphertext = null;
                     decryptedFile = prepareFile(localStorage.mimetype);
-                    plaintext = null;
+//                    plaintext = null;
                     saveAs(decryptedFile, uploadedFile.name);
             }
                 reader.readAsText(evt.target.files[0]);

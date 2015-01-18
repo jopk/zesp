@@ -14,7 +14,7 @@
         <script src="lib/form.js"></script>
         <script>
             function printQRC() {
-               jQuery('#qrcode').qrcode({text: "http://mcz.0x.no:9080/zesp/tmp/" + hashc + enckey + encodeURI(uploadedFile.name)});
+                jQuery('#qrcode').qrcode({text: qrstring});
             }
         </script>
     </head>
