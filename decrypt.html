@@ -89,7 +89,10 @@
                     ciphertext = reader.result;
                     plaintext = decryptFile(localStorage.ckey);
 //                    ciphertext = null;
-                    decryptedFile = prepareFile(localStorage.mimetype);
+                    if (localStorage.mimetype.search(new RegExp("text")) == 0)
+                        decryptedFile = new Blob([plaintext], {type: localStorage.mimetype});
+                    else
+                        decryptedFile = prepareFile(localStorage.mimetype);
 //                    plaintext = null;
                     saveAs(decryptedFile, uploadedFile.name);
             }

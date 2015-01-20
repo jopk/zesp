@@ -1,8 +1,18 @@
+/*
+ * Wejście:
+ *  str - string z qrcode
+ * Wyjście:
+ *  w[4] - tablica składające się z czterech elementów
+ *      0 - adres url pliku
+ *      1 - klucz szyfrujący
+ *      2 - nazwa pliku do zapisu
+ *      3 - rodzaj pliku(T - tesktowy, I - inny)
+*/
 function analyzeStringFromQR(str) {
     var ADR = 8,
         SHA = 64,
         SR = 48;
-    var w = new Array(3);
+    var w = new Array(4);
 
 // wyciąganie lokalizacji
     var path = "";
@@ -11,6 +21,9 @@ function analyzeStringFromQR(str) {
     }
     if (path[ADR-1] == "S")
         path = "http://mcz.0x.no:9080/zesp/tmp/";
+
+// rodzaj pliku
+    w[3] = str[ADR];
 
 // nazwa pliku na serwerze
     var hash = "";
