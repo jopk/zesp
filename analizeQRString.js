@@ -37,8 +37,10 @@ function analyzeStringFromQR(str) {
     for (var i = ADR+SHA+1; i <= ADR+SHA+SR; i++) {
         qrkey += str[i];
     }
+    w[1] = qrkey;
 
 // "nieczytelny" klucz szyfrujący
+/*
     var l = 0;
     var pass = "";
     for (var i = 0; i < qrkey.length / 3; i++) {
@@ -50,6 +52,7 @@ function analyzeStringFromQR(str) {
         pass += String.fromCharCode(code);
     }
     w[1] = pass;
+*/
 
 // nazwa pliku
     var name = "";

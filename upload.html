@@ -45,10 +45,11 @@
         <input type="file" id="files" name="file" />
         <button onclick="abortRead();">Cancel read</button>
         <div id="progress_bar"><div class="percent">0%</div></div>
+        <output id="status"></output>
 
         <div id="qrcode"></div>
 
         <script src="lib/upload.js"></script>
-        <a href="javascript:postwith('cgi/input.cgi', encodeURI(hashc), encryptedFile)"><button>Wyślij</button></a>
+        <a href="javascript:postwith('cgi/input.cgi', encodeURI(hashc), encryptedFile)"><button id='wyslij' hidden=true >Wyślij</button></a>
     </body>
 </html>
