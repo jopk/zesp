@@ -7,7 +7,7 @@ public class AnalyzeQRString {
 
     AnalyzeQRString() {}
 
-    String[] analyzeQRString(String str) throws Exception {
+    static String[] analyzeQRString(String str) throws Exception {
 
         String server = str.substring(0, ADR);
         String path = "";
@@ -37,8 +37,7 @@ public class AnalyzeQRString {
             return;
 
         try {
-            AnalyzeQRString test = new AnalyzeQRString();
-            String[] data = test.analyzeQRString(args[0]);
+            String[] data = analyzeQRString(args[0]);
             System.out.println("ścieżka: " + data[0]);
             System.out.println("klucz: " + data[1]);
             System.out.println("nazwa: " + data[2]);
