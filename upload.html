@@ -1,6 +1,7 @@
 <meta charset="UTF-8">
 <html>
     <head>
+        <title>Przesyłanie plików za pomocą kodów QR</title>
         <script src="lib/crypto/aes.js"></script>
         <script src="lib/crypto/aes-ctr.js"></script>
         <script src="lib/crypto/sha256.js"></script>
@@ -12,11 +13,10 @@
         <script src="lib/web-encrypt.js"></script>
         <script src="lib/app-decrypt.js"></script>
         <script src="lib/form.js"></script>
-        <script src="../sjcl/sjcl.js"></script>
         <script>
             function printQRC() {
                 jQuery('#qrcode').empty();
-                jQuery('#qrcode').qrcode({text: qrstring});
+                jQuery('#qrcode').qrcode({text: qrstring, height: 400, width: 400});
             }
         </script>
     </head>
@@ -46,11 +46,10 @@
         <input type="file" id="files" name="file" />
         <button onclick="abortRead();">Cancel read</button>
         <div id="progress_bar"><div class="percent">0%</div></div>
-        <output id="status"></output>
 
-        <div id="qrcode"></div>
+        <p><div id="qrcode"></div></p>
 
         <script src="lib/upload.js"></script>
-        <a href="javascript:postwith('cgi/input.cgi', encodeURI(hashc), encryptedFile)"><button id='wyslij' hidden=true >Wyślij</button></a>
+        <p><a href="javascript:postwith('cgi/input.cgi', encodeURI(hashc), encryptedFile)"><button id='wyslij' hidden=true >Wyślij</button></a></p>
     </body>
 </html>
